@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <name>normative_navigation</name>
+  <version>0.1.0</version>
+  <description>
+    Socially normative navigation: this package contains necessary configurations for running simulation experiments and also robot experiments dependent on the mobile robot specification
+  </description>
+
+  <maintainer email="okal@cs.uni-freiburg.de">Billy Okal</maintainer>
+  <license>MIT</license>
+  <url type="website">https://github.com/makokal/socially_normative_navigation</url>
+  <author email="okal@cs.uni-freiburg.de">Billy Okal</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>move_base</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>pedsim_simulator</build_depend>
+
+  <run_depend>move_base</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>pedsim_simulator</run_depend>
+
+</package>
