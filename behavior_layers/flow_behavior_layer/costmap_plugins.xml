@@ -1,0 +1,5 @@
+<library path="lib/libflow_behavior_layer">
+  <class type="flow_behavior_layer::FlowBehaviorLayer" base_class_type="costmap_2d::Layer">
+    <description>A navigation in flows layer for costmap_2d based on behaviors learned via inverse reinforement learning</description>
+  </class>
+</library>

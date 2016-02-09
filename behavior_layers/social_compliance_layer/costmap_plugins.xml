@@ -1,0 +1,5 @@
+<library path="lib/libsocial_compliance_layer">
+  <class type="social_compliance_layer::SocialComplianceLayer" base_class_type="costmap_2d::Layer">
+    <description>A social compliance layer for costmap_2d based on behaviors learned via inverse reinforement learning</description>
+  </class>
+</library>

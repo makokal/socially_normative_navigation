@@ -1,0 +1,12 @@
+
+# ===  Learned flow behavors
+
+flow_behavior_layer:
+    # features : density, realtive heading, goal distance
+    behavior_params_merge: [0.0001, 12.750005, 0.0023]
+    # for no merg feature (just all zeros)
+    behavior_params_nomerge: [0.0, 0.0, 0.02]
+
+    # behavior_params_merge: [0.000, 0.24, 0.00]
+    # for no merg feature (just all zeros)
+    # behavior_params_nomerge: [0.0, 0.0, 0.02]
