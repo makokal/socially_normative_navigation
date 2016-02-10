@@ -5,8 +5,8 @@ publish_frequency: 12.0
 update_frequency: 12.0
 combination_method: 1
 
-width: 4.0
-height: 4.0
+width: 3.0
+height: 3.0
 resolution: 0.05
 global_frame: odom
 

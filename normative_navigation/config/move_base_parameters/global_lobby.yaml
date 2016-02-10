@@ -5,8 +5,8 @@ static_map: false
 map_type: map
 width: 30.0
 height: 30.0
-publish_frequency: 10.0
-update_frequency: 10.0
+publish_frequency: 5.0
+update_frequency: 5.0
 track_unknown_space: false
 resolution: 0.1
 global_frame: odom
