@@ -104,7 +104,6 @@ private:
 
     // local cached costmap
     std::map<std::pair<int, int>, double> flow_map_;
-    // std::vector<std::pair<int, int> > zero_cells_;
     double min_flow_cost_, max_flow_cost_;
 
     // navigation cost function

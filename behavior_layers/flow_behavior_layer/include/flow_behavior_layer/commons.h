@@ -187,7 +187,10 @@ inline double mapRange(const double& value,
     const double& mina, const double& maxa,
     const double& mint, const double& maxt)
 {
+    // const double SHIFT = 100000.0;
+    // double denom = (maxa+SHIFT) - (mina+SHIFT);
     double denom = maxa - mina;
+
     if (abs(denom) < std::numeric_limits<float>::min())
         denom = std::numeric_limits<float>::min();
 

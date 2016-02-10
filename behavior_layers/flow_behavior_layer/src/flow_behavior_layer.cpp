@@ -55,16 +55,14 @@ void FlowBehaviorLayer::onInitialize()
     nh.param("goal_topic", goal_topic, std::string(""));
 
     costmap_frame_ = layered_costmap_->getGlobalFrameID();
-
     ros::param::param<std::string>("/move_base_node/global_costmap/robot_base_frame",
         robot_base_frame_, std::string(""));
-    // robot_base_frame_ = getBaseFrameID();
 
     ROS_INFO("Flow behavior layer using the following data sources:");
     ROS_INFO("Persons: [%s], Goal: [%s]", people_topic.c_str(),
         goal_topic.c_str());
 
-    sub_persons_ = nh.subscribe(people_topic, 1,
+    sub_persons_ = nh.subscribe(people_topic, 10,
         &FlowBehaviorLayer::callbackTrackedPersons, this);
     sub_goal_ = nh.subscribe(goal_topic, 1, &FlowBehaviorLayer::callbackSetGoal, this);
 
@@ -99,36 +97,30 @@ void FlowBehaviorLayer::computeLayerCostmap(const double& min_i,
     const double& max_i,
     const double& max_j)
 {
-    // if (persons_.size() < 1)
-    //     return;
-
     flow_map_.clear();
     std::vector<double> all_costs; all_costs.clear();
-    // zero_cells_.clear();
 
+    double dist_to_robot = 0.0;
     for (int j = min_j; j < max_j; j++) {
         for (int i = min_i; i < max_i; i++) {
             std::pair<int, int> key = { i, j };
 
             double wx, wy;
             mapToWorld(i, j, wx, wy);
-            double dist_to_robot = std::hypot(robot_position_[0] - wx, robot_position_[1] - wy);
+            dist_to_robot = std::hypot(robot_position_[0] - wx, robot_position_[1] - wy);
 
             double cell_cost = 0.0;
-            if (min_range_ < dist_to_robot && dist_to_robot < update_range_) {
-                // compute the feature and cost
+            if ((min_range_ < dist_to_robot) && (dist_to_robot < update_range_)) {
                 std::vector<Tpoint> traj;
                 Tpoint p = { wx, wy, 0.0, 0.0 };
                 traj.push_back(p);
                 cell_cost = cost_function_->cost(traj, persons_, goal_, radius_);
-            }
-            // else {
-            //     zero_cells_.push_back(key);
-            // }
 
-            // store the cost of the cell with its coordinates
-            flow_map_.insert(std::make_pair(key, cell_cost));
-            all_costs.push_back(cell_cost);
+                if (fabs(cell_cost) > 1e-05) {
+                    flow_map_.insert(std::make_pair(key, cell_cost));
+                    all_costs.push_back(cell_cost);
+                }
+            }
         }
     }
 
@@ -141,11 +133,7 @@ void FlowBehaviorLayer::computeLayerCostmap(const double& min_i,
         max_flow_cost_ = *std::max_element(all_costs.begin(), all_costs.end());
     }
 
-    // make all the cells whose costs we not update to be lowest cost before
-    // scaling later
-    // for (const auto& k : zero_cells_) {
-    //     flow_map_[k] = min_flow_cost_;
-    // }
+    ROS_WARN(" MIN Flow Cost [%f], MAX Flow Cost [%f] ", min_flow_cost_, max_flow_cost_);
 
 }
 
@@ -208,7 +196,10 @@ void FlowBehaviorLayer::updateCosts(costmap_2d::Costmap2D& master_grid,
     for (int j = min_j; j < max_j; j++) {
         for (int i = min_i; i < max_i; i++) {
             std::pair<int, int> cell = { i, j };
-            double real_cost = mapRange(flow_map_[cell], min_flow_cost_, max_flow_cost_, 0.0, 254.0);
+            if (flow_map_.find(cell) == flow_map_.end())
+                continue;
+
+            double real_cost = mapRange(flow_map_[cell], min_flow_cost_, max_flow_cost_, 0, 254);
             current_cell_cost = master_grid.getCost(i, j);
             master_grid.setCost(i, j, std::max(current_cell_cost, static_cast<unsigned int>(real_cost)));
         }
@@ -273,13 +264,17 @@ void FlowBehaviorLayer::callbackTrackedPersons(const TPersons::ConstPtr& msg)
 {
     tf::StampedTransform costmap_transform;
     try {
-        tf_->waitForTransform(costmap_frame_,
-            msg->header.frame_id,
-            ros::Time::now(),
-            ros::Duration(0.05));
+        // tf_->waitForTransform(costmap_frame_,
+        //     msg->header.frame_id,
+        //     ros::Time::now(),
+        //     ros::Duration(0.05));
+        // tf_->lookupTransform(costmap_frame_,
+        //     msg->header.frame_id,
+        //     ros::Time(0), costmap_transform);
+
         tf_->lookupTransform(costmap_frame_,
             msg->header.frame_id,
-            ros::Time(0), costmap_transform);
+            ros::Time(), costmap_transform);
     }
     catch (tf::TransformException& e) {
         ROS_WARN_STREAM_THROTTLE(5.0, "TF lookup from tracking frame to costmap frame failed. Reason: " << e.what());
@@ -299,7 +294,7 @@ void FlowBehaviorLayer::callbackTrackedPersons(const TPersons::ConstPtr& msg)
         tf::Pose result = costmap_transform * source;
         tf::Quaternion new_orientation = result.getRotation();
         double theta = tf::getYaw(new_orientation);
-        double speed = std::hypot(p.twist.twist.linear.x, p.twist.twist.linear.x);
+        double speed = std::hypot(p.twist.twist.linear.x, p.twist.twist.linear.y);
         Person pd = { result.getOrigin().x(), result.getOrigin().y(), speed*cos(theta), speed*sin(theta) };
 
         persons_.emplace_back(pd);

@@ -106,8 +106,6 @@ protected:
         const double& max_i,
         const double& max_j);
 
-    std::vector<Person> closestPersonsFromCell(const int& i, const int& j);
-
     void updateRobotPose();
 
     point_t nextMilestone();

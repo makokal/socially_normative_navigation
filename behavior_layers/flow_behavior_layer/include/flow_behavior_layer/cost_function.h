@@ -73,8 +73,8 @@ public:
         features[1] = relativeHeading(traj, people, goal);
         features[2] = goalDistance(traj, goal);
 
-        // double cost = vdot(features, weights_);
-        double cost = evaluateCost(features);
+        double cost = vdot(features, weights_);
+        // double cost = evaluateCost(features);
 
         return std::move(cost);
     }
@@ -160,7 +160,8 @@ protected:
                 {
                     density++;
                     // goal_pull += goalOrientation(p, goal);
-                    goal_pull += sigmoid(goalOrientation(p, goal));
+                    // goal_pull += sigmoid(goalOrientation(p, goal));
+                    goal_pull += tanh(goalOrientation(p, goal));
                 }
             }
 

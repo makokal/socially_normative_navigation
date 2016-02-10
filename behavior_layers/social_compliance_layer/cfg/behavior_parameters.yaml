@@ -10,6 +10,6 @@ social_compliance_layer:
 
 # Flow behaviors
 flow_behavior_layer:
-    behavior_params_merge: [0.0001, 12.750005, 0.0023]
+    behavior_params_merge: [0.000, 2.750005, 0.00]
     behavior_params_nomerge: [0.0, 0.0, 0.02]
 

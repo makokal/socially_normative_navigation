@@ -301,31 +301,6 @@ void SocialComplianceLayer::updateBounds(double robot_x,
     *max_y = *max_y;
 }
 
-/// ---------------------------------------------------------------
-/// \brief Find the closest person to select cell in the grid map
-/// ---------------------------------------------------------------
-std::vector<Person> SocialComplianceLayer::closestPersonsFromCell(const int& i,
-    const int& j)
-{
-    std::vector<Person> vp;
-    if (persons_.size() < 1)
-        return vp;
-
-    double wx, wy;
-    mapToWorld(i, j, wx, wy);
-
-    // Person cp = persons_[0];
-    // double dist = edist(point_t(wx, wy), cp);
-    for (const auto& person : persons_) {
-        double dd = edist(point_t(wx, wy), person);
-        if (dd < 3.0) {
-            // dist = dd;
-            // cp = person;
-            vp.push_back(person);
-        }
-    }
-    return vp;
-}
 
 /// -----------------------------------------------------------
 /// \function callbackTrackedPersons
@@ -363,7 +338,7 @@ void SocialComplianceLayer::callbackTrackedPersons(const TPersons::ConstPtr& msg
         tf::Pose result = costmap_transform * source;
         tf::Quaternion new_orientation = result.getRotation();
         double theta = tf::getYaw(new_orientation);
-        double speed = std::hypot(p.twist.twist.linear.x, p.twist.twist.linear.x);
+        double speed = std::hypot(p.twist.twist.linear.x, p.twist.twist.linear.y);
         Person pd = { result.getOrigin().x(), result.getOrigin().y(), speed*cos(theta), speed*sin(theta) };
 
         Covariance cov = { p.pose.covariance[0], p.pose.covariance[7], p.pose.covariance[1] };
