@@ -18,7 +18,7 @@
   <!-- NODES -->
 
   <!-- Robot control group -->
-  <arg name="publish_default_laser_collision_status" default="false"/>
+  <arg name="publish_default_laser_collision_status" default="true"/>
   <group ns="/spencer/control">
     <include file="$(find spencer_description)/launch/publish.launch"/>
     <include file="$(find spencer_description)/launch/joints.launch"/>
