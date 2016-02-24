@@ -1,5 +1,5 @@
 /**
-* Copyright 2015 Social Robotics Lab, University of Freiburg
+* Copyright 2015-2016 Social Robotics Lab, University of Freiburg
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,14 @@ PLUGINLIB_EXPORT_CLASS(flow_behavior_layer::FlowBehaviorLayer,
 namespace flow_behavior_layer {
 
 FlowBehaviorLayer::FlowBehaviorLayer() {}
-FlowBehaviorLayer::~FlowBehaviorLayer() {}
+
+FlowBehaviorLayer::~FlowBehaviorLayer() {
+    sub_persons_.shutdown();
+    sub_goal_.shutdown();
+
+    delete dsrv_;
+    cost_function_.reset();
+}
 
 /// ---------------------------------------------------------------------------
 /// \function onInitialize
@@ -111,10 +118,8 @@ void FlowBehaviorLayer::computeLayerCostmap(const double& min_i,
 
             double cell_cost = 0.0;
             if ((min_range_ < dist_to_robot) && (dist_to_robot < update_range_)) {
-                std::vector<Tpoint> traj;
                 Tpoint p = { wx, wy, 0.0, 0.0 };
-                traj.push_back(p);
-                cell_cost = cost_function_->cost(traj, persons_, goal_, radius_);
+                cell_cost = cost_function_->cost(p, persons_, goal_, radius_);
 
                 if (fabs(cell_cost) > 1e-05) {
                     flow_map_.insert(std::make_pair(key, cell_cost));
@@ -196,12 +201,16 @@ void FlowBehaviorLayer::updateCosts(costmap_2d::Costmap2D& master_grid,
     for (int j = min_j; j < max_j; j++) {
         for (int i = min_i; i < max_i; i++) {
             std::pair<int, int> cell = { i, j };
-            if (flow_map_.find(cell) == flow_map_.end())
-                continue;
+            // if (flow_map_.find(cell) == flow_map_.end())
+            //     continue;
 
-            double real_cost = mapRange(flow_map_[cell], min_flow_cost_, max_flow_cost_, 0, 254);
-            current_cell_cost = master_grid.getCost(i, j);
-            master_grid.setCost(i, j, std::max(current_cell_cost, static_cast<unsigned int>(real_cost)));
+            auto search = flow_map_.find(cell);
+            if (search != flow_map_.end()) {
+                double real_cost = mapRange(search->second, min_flow_cost_, max_flow_cost_, 0, 254);
+                current_cell_cost = master_grid.getCost(i, j);
+                master_grid.setCost(i, j, std::max(current_cell_cost, static_cast<unsigned int>(real_cost)));
+            }
+
         }
     }
 }

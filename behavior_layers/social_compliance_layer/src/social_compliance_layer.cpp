@@ -1,5 +1,5 @@
 /**
-* Copyright 2015 Social Robotics Lab, University of Freiburg
+* Copyright 2015-2016 Social Robotics Lab, University of Freiburg
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,8 @@
 #include <social_compliance_layer/social_compliance_layer.h>
 #include <pluginlib/class_list_macros.h>
 
+#include <memory>
+
 PLUGINLIB_EXPORT_CLASS(social_compliance_layer::SocialComplianceLayer,
     costmap_2d::Layer)
 
@@ -43,6 +45,12 @@ SocialComplianceLayer::~SocialComplianceLayer()
     sub_persons_.shutdown();
     sub_groups_.shutdown();
     sub_goal_.shutdown();
+    sub_global_path_.shutdown();
+
+    delete dsrv_;
+    cost_function_.reset();
+    cfparams_.reset();
+
 }
 
 /// ---------------------------------------------------------------------------
@@ -93,9 +101,10 @@ void SocialComplianceLayer::onInitialize()
 
     min_social_cost_ = 0.0;
     max_social_cost_ = 0.0;
+    prediction_horizon_ = 2;
 
     cfparams_ = std::make_shared<CFParams>();
-    cost_function_.reset(new SocialNavigationCost(0.99, behavior_name_, cfparams_));
+    cost_function_.reset(new SocialComplianceCost(0.99, behavior_name_, cfparams_));
 
     dsrv_ = new dynamic_reconfigure::Server<social_compliance_layer::SocialComplianceLayerConfig>(nh);
     dynamic_reconfigure::Server<social_compliance_layer::SocialComplianceLayerConfig>::CallbackType cb = boost::bind(
@@ -122,17 +131,15 @@ void SocialComplianceLayer::computeLayerCostmap(const double& min_i,
         for (int i = min_i; i < max_i; i++) {
             double wx, wy;
             mapToWorld(i, j, wx, wy); // get the world coordinates
-            dist_to_robot = std::hypot(robot_position_[0] - wx,
-                robot_position_[1] - wy);
+            dist_to_robot = std::hypot(robot_position_.x - wx,
+                robot_position_.y - wy);
 
             double cell_cost = 0.0;
 
             if (min_range_ < dist_to_robot && dist_to_robot < update_range_) {
-                // compute the feature and cost
-                std::vector<Tpoint> traj;
                 Tpoint p = { wx, wy, 0.0, 0.0 };
-                traj.push_back(p);
-                cell_cost = cost_function_->cost(traj, persons_, relations_, goal_, cfparams_, robot_position_, nextMilestone());
+                // location, people, relations, goal, params, discount, horizon
+                cell_cost = cost_function_->cost(p, persons_, relations_, goal_, cfparams_, robot_position_, 1.0, prediction_horizon_);
             }
 
             // store the cost of the cell with its coordinates
@@ -195,10 +202,10 @@ void SocialComplianceLayer::updateRobotPose()
 
     double yaw = tf::getYaw(orientation);
 
-    robot_position_[0] = transform.getOrigin().x();
-    robot_position_[1] = transform.getOrigin().y();
-    robot_position_[2] = cos(yaw);
-    robot_position_[3] = sin(yaw);
+    robot_position_.x = transform.getOrigin().x();
+    robot_position_.y = transform.getOrigin().y();
+    robot_position_.vx = cos(yaw);
+    robot_position_.vy = sin(yaw);
 }
 
 /// ---------------------------------------------------------------------------
@@ -227,9 +234,14 @@ void SocialComplianceLayer::updateCosts(costmap_2d::Costmap2D& master_grid,
     for (int j = min_j; j < max_j; j++) {
         for (int i = min_i; i < max_i; i++) {
             std::pair<int, int> cell = { i, j };
-            double real_cost = mapRange(social_cost_map_[cell], min_social_cost_, max_social_cost_, 0, 254);
-            current_cell_cost = master_grid.getCost(i, j);
-            master_grid.setCost(i, j, std::max(current_cell_cost, static_cast<unsigned int>(real_cost)));
+
+            auto search = social_cost_map_.find(cell);
+            if (search != social_cost_map_.end()) {
+                double real_cost = mapRange(search->second, min_social_cost_, max_social_cost_, 0, 254);
+                current_cell_cost = master_grid.getCost(i, j);
+                master_grid.setCost(i, j, std::max(current_cell_cost, static_cast<unsigned int>(real_cost)));
+            }
+
         }
     }
 }
@@ -266,7 +278,9 @@ void SocialComplianceLayer::reconfigureCB(LayerConfig& config, uint32_t level)
     cfparams_->region_type = config.region_type;
     cfparams_->weights = selectWeights(config.behavior_name);
     cfparams_->thresh_static = config.thresh_static;
-    cfparams_->front_horizon = config.front_horizon;
+    // cfparams_->front_horizon = config.front_horizon;
+
+    prediction_horizon_ = config.prediction_horizon;
 
     // layer update range limit (how far drom the robot the layer should be updated)
     update_range_ = config.update_range;

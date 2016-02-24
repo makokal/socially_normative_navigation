@@ -1,5 +1,5 @@
 /**
-* Copyright 2015 Social Robotics Lab, University of Freiburg
+* Copyright 2015-2016 Social Robotics Lab, University of Freiburg
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 
 #include <tf/transform_listener.h> // must come first due to conflict with Boost signals
 #include <boost/shared_ptr.hpp>
+#include <memory>
 
 /// ros
 #include <ros/ros.h>
@@ -48,7 +49,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
 
-#include <social_compliance_layer/cost_function.h>
+#include <behavior_functions/social_compliance_cost.h>
 
 #include <social_compliance_layer/SocialComplianceLayerConfig.h>
 
@@ -57,6 +58,8 @@ namespace social_compliance_layer {
 using TPersons = spencer_tracking_msgs::TrackedPersons;
 using TGroups = spencer_tracking_msgs::TrackedGroups;
 using LayerConfig = social_compliance_layer::SocialComplianceLayerConfig;
+
+using namespace behavior_functions;
 
 /// ---------------------------------------------------------------------------
 /// \class SocialComplianceLayer
@@ -139,17 +142,18 @@ private:
     double min_social_cost_, max_social_cost_;
 
     // module for social navigation cost
-    std::unique_ptr<SocialNavigationCost> cost_function_;
+    std::unique_ptr<SocialComplianceCost> cost_function_;
 
     std::string costmap_frame_;
     std::string robot_base_frame_;
 
     // current robot pose
-    std::vector<double> robot_position_;
+    Person robot_position_;
 
     // dynamic reconfigure params
     std::shared_ptr<CFParams> cfparams_;
     double update_range_, min_range_;
+    int prediction_horizon_;
 };
 
 } // end namespace

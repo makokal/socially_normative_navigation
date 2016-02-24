@@ -11,6 +11,7 @@ set(PACKAGE_DEPENDENCIES
     spencer_tracking_msgs
     geometry_msgs
     tf
+    behavior_functions
 )
 
 find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
@@ -27,6 +28,9 @@ catkin_package(CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES})
 
 include_directories(include)
 include_directories(${catkin_INCLUDE_DIRS})
+
+link_directories(${catkin_LIBRARY_DIRS})
+
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME} src/flow_behavior_layer.cpp)

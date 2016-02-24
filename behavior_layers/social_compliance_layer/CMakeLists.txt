@@ -13,6 +13,8 @@ set(PACKAGE_DEPENDENCIES
     geometry_msgs
     nav_msgs
     tf
+    behavior_functions
+    behavior_utils
 )
 
 find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
@@ -29,7 +31,9 @@ catkin_package(CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES})
 include_directories(include)
 include_directories(${catkin_INCLUDE_DIRS})
 
-## Declare a cpp library
+link_directories(${catkin_LIBRARY_DIRS})
+
+# layer library
 add_library(${PROJECT_NAME} src/social_compliance_layer.cpp)
 add_dependencies(${PROJECT_NAME} spencer_tracking_msgs)
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)

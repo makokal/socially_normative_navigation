@@ -1,5 +1,5 @@
 /**
-* Copyright 2015 Social Robotics Lab, University of Freiburg
+* Copyright 2015-2016 Social Robotics Lab, University of Freiburg
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -42,12 +42,14 @@
 #include <spencer_tracking_msgs/TrackedPersons.h>
 #include <geometry_msgs/PoseStamped.h>
 
-#include <flow_behavior_layer/commons.h>
-#include <flow_behavior_layer/cost_function.h>
+#include <behavior_functions/flow_cost_function.h>
+
 #include <flow_behavior_layer/FlowBehaviorLayerConfig.h>
 
 using TPersons = spencer_tracking_msgs::TrackedPersons;
 using FlowConfig = flow_behavior_layer::FlowBehaviorLayerConfig;
+
+using namespace behavior_functions;
 
 namespace flow_behavior_layer {
 
