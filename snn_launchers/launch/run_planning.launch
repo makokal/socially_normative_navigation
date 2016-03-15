@@ -1,0 +1,37 @@
+<launch>
+    <arg name="scene" default="lobby"/>
+    <arg name="reset_params" default="false"/>
+
+    <!-- Behavior parameters -->
+    <rosparam command="load" file="$(find snn_launchers)/config/behavior_parameters/$(arg scene).yaml" />
+
+    <!-- run move base -->
+    <node pkg="move_base" type="move_base" name="move_base_node" output="screen">
+        <remap from="/cmd_vel" to="/spencer/control/desired_velocity"/>
+
+        <rosparam file="$(find snn_launchers)/config/move_base_parameters/common.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find snn_launchers)/config/move_base_parameters/common.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find snn_launchers)/config/move_base_parameters/$(arg scene)/global.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find snn_launchers)/config/move_base_parameters/$(arg scene)/local.yaml" command="load" ns="local_costmap" />
+
+        <!-- global planner -->
+        <rosparam file="$(find snn_launchers)/config/move_base_parameters/move_base.yaml" command="load" />
+        <param name="base_global_planner" value="navfn/NavfnROS"/>
+
+        <!-- local planner -->
+        <param name="base_local_planner" value="srl_eband_local_planner/SrlEBandPlannerROS"/>
+        <rosparam file="$(find snn_launchers)/config/move_base_parameters/srl_eband_params.yaml" command="load" ns="SrlEBandPlannerROS"/>
+    </node>
+
+    <!-- change the driving direction -->
+    <node pkg="spencer_navigation" type="transform_velocity" name="transform_velocity" output="screen" />
+
+    <!-- optionally change default parameters from dyn reconfigure -->
+    <group if="$(arg reset_params)">
+        <node name="$(anon dynparam)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters /move_base_node/global_costmap/social_compliance" output="screen" respawn="false">
+            <param name="dynamic_scene" type="bool" value="false"/>
+            <param name="update_range" type="double" value="20.0"/>
+        </node>
+    </group>
+
+</launch>

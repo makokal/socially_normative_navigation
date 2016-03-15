@@ -1,0 +1,7 @@
+<library path="lib/libovertaking_layer">
+  <class type="overtaking_layer::OvertakingLayer" base_class_type="costmap_2d::Layer">
+    <description>
+        An overtaking layer for costmap_2d based combination of simple basis feature functions, combination of which learned via imitation learning
+    </description>
+  </class>
+</library>

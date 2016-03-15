@@ -1,37 +1,39 @@
 <?xml version="1.0"?>
 <package>
-  <name>social_compliance_layer</name>
-  <version>0.1.1</version>
-  <description>The social_compliance_layer: cost-feature based socially normative robot navigation</description>
+  <name>overtaking_layer</name>
+  <version>0.1.0</version>
+  <description>
+    The overtaking_layer provides costmap generation functionality that allows overtaking of agents using learned basis functions
+  </description>
 
   <maintainer email="okal@cs.uni-freiburg.de">Billy Okal</maintainer>
   <author email="okal@cs.uni-freiburg.de">Billy Okal</author>
   <license>BSD</license>
+  <url type="website">http://wiki.ros.org/overtaking_layer</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-
-  <build_depend>costmap_2d</build_depend>
-  <build_depend>pluginlib</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>spencer_tracking_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>tf</build_depend>
-  <build_depend>nav_msgs</build_depend>
   <build_depend>behavior_functions</build_depend>
   <build_depend>behavior_utils</build_depend>
+  <build_depend>costmap_2d</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>spencer_tracking_msgs</build_depend>
+  <build_depend>tf</build_depend>
 
-  <run_depend>costmap_2d</run_depend>
-  <run_depend>pluginlib</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>spencer_tracking_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>nav_msgs</run_depend>
   <run_depend>behavior_functions</run_depend>
   <run_depend>behavior_utils</run_depend>
+  <run_depend>costmap_2d</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>pluginlib</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>spencer_tracking_msgs</run_depend>
+  <run_depend>tf</run_depend>
+
+  <test_depend>gtest</test_depend>
 
   <export>
     <costmap_2d plugin="${prefix}/costmap_plugins.xml"/>

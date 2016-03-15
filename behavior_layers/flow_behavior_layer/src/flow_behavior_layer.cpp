@@ -108,6 +108,7 @@ void FlowBehaviorLayer::computeLayerCostmap(const double& min_i,
     std::vector<double> all_costs; all_costs.clear();
 
     double dist_to_robot = 0.0;
+    double cell_cost = 0.0;
     for (int j = min_j; j < max_j; j++) {
         for (int i = min_i; i < max_i; i++) {
             std::pair<int, int> key = { i, j };
@@ -116,7 +117,7 @@ void FlowBehaviorLayer::computeLayerCostmap(const double& min_i,
             mapToWorld(i, j, wx, wy);
             dist_to_robot = std::hypot(robot_position_[0] - wx, robot_position_[1] - wy);
 
-            double cell_cost = 0.0;
+            cell_cost = 0.0;
             if ((min_range_ < dist_to_robot) && (dist_to_robot < update_range_)) {
                 Tpoint p = { wx, wy, 0.0, 0.0 };
                 cell_cost = cost_function_->cost(p, persons_, goal_, radius_);
@@ -138,7 +139,7 @@ void FlowBehaviorLayer::computeLayerCostmap(const double& min_i,
         max_flow_cost_ = *std::max_element(all_costs.begin(), all_costs.end());
     }
 
-    ROS_WARN(" MIN Flow Cost [%f], MAX Flow Cost [%f] ", min_flow_cost_, max_flow_cost_);
+    // ROS_WARN(" MIN Flow Cost [%f], MAX Flow Cost [%f] ", min_flow_cost_, max_flow_cost_);
 
 }
 
@@ -273,14 +274,6 @@ void FlowBehaviorLayer::callbackTrackedPersons(const TPersons::ConstPtr& msg)
 {
     tf::StampedTransform costmap_transform;
     try {
-        // tf_->waitForTransform(costmap_frame_,
-        //     msg->header.frame_id,
-        //     ros::Time::now(),
-        //     ros::Duration(0.05));
-        // tf_->lookupTransform(costmap_frame_,
-        //     msg->header.frame_id,
-        //     ros::Time(0), costmap_transform);
-
         tf_->lookupTransform(costmap_frame_,
             msg->header.frame_id,
             ros::Time(), costmap_transform);

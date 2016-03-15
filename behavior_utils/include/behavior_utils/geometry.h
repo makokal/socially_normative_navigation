@@ -36,6 +36,11 @@
 #include <vector>
 #include <limits>
 
+#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
+#include <tf/LinearMath/Quaternion.h>
+#include <tf/transform_datatypes.h>
+
 #include <behavior_utils/entities.h>
 
 namespace behavior_utils {
@@ -302,6 +307,41 @@ inline bool inFrontOfRobot(const Person& robot, const PointType& point)
         return true;
 }
 
+
+inline double relativeAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2, const double& angle)
+{
+    double actual_angle = acos((fabs(p1.x - p2.x)) / edist(point_t(p1.x, p1.y), point_t(p2.x, p2.y)));
+
+    // Trigonometric adjustment
+    if (p1.x < p2.x)
+        actual_angle = 3.1416 - actual_angle;
+
+    if (p2.y < p1.y)
+        actual_angle = -actual_angle;
+
+    return angle - actual_angle;
+}
+
+inline double isInAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2, const double& angle,
+    double angle_threshold)
+{
+    double angle_result = relativeAngle(p1, p2, angle);
+
+    if (fabs(angle_result) > angle_threshold) {
+        return 0.0;
+    }
+    else {
+        return (angle_threshold - fabs(angle_result)) / angle_threshold;
+    }
+}
+
+inline bool isFacing(const geometry_msgs::Pose& p1, const geometry_msgs::Point& p2)
+{
+    tf::Quaternion quaternion;
+    tf::quaternionMsgToTF(p1.orientation, quaternion);
+    double yaw = tf::getYaw(quaternion);
+    return isInAngle(p1.position, p2, yaw, 0.5);
+}
 
 
 } // end of namespace

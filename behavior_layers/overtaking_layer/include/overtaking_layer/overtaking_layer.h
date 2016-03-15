@@ -28,11 +28,10 @@
 * \author Billy Okal <okal@cs.uni-freiburg.de>
 */
 
-#ifndef SOCIAL_COMPLIANCE_LAYER_H
-#define SOCIAL_COMPLIANCE_LAYER_H
+#ifndef OVERTAKING_LAYER_H
+#define OVERTAKING_LAYER_H
 
 #include <tf/transform_listener.h> // must come first due to conflict with Boost signals
-#include <boost/shared_ptr.hpp>
 #include <memory>
 
 /// ros
@@ -44,34 +43,33 @@
 /// data
 #include <spencer_tracking_msgs/TrackedPerson.h>
 #include <spencer_tracking_msgs/TrackedPersons.h>
-#include <spencer_tracking_msgs/TrackedGroup.h>
-#include <spencer_tracking_msgs/TrackedGroups.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
 
-#include <behavior_functions/social_compliance_cost.h>
+#include <behavior_utils/entities.h>
+#include <behavior_utils/geometry.h>
+#include <behavior_utils/helpers.h>
 
-#include <social_compliance_layer/SocialComplianceLayerConfig.h>
+// #include <behavior_functions/overtaking_cost.h>
 
-namespace social_compliance_layer {
+#include <overtaking_layer/OvertakingLayerConfig.h>
+
+namespace overtaking_layer {
 
 using TPersons = spencer_tracking_msgs::TrackedPersons;
-using TGroups = spencer_tracking_msgs::TrackedGroups;
-using LayerConfig = social_compliance_layer::SocialComplianceLayerConfig;
+using LayerConfig = overtaking_layer::OvertakingLayerConfig;
 
-using namespace behavior_functions;
 
-/// ---------------------------------------------------------------------------
-/// \class SocialComplianceLayer
-/// \brief Add a layer for simple behavior based on inverse reinforement
-/// learning reward functions (cost objective functions)
-/// ---------------------------------------------------------------------------
-class SocialComplianceLayer : public costmap_2d::Layer, public costmap_2d::Costmap2D {
+/**
+ * @class OvertakingLayer
+ * @details A costmap2D layer for providing capability of overtaking agents or
+ * people.
+ */
+class OvertakingLayer : public costmap_2d::Layer, public costmap_2d::Costmap2D {
 public:
-    SocialComplianceLayer();
-    ~SocialComplianceLayer();
+    OvertakingLayer();
+    ~OvertakingLayer();
 
-    /// overriding costmap layer methods
     virtual void onInitialize();
 
     virtual void updateBounds(double robot_x,
@@ -92,70 +90,30 @@ public:
 
     virtual void matchSize();
 
-    /// subcriber callbacks
     void callbackTrackedPersons(const TPersons::ConstPtr& msg);
 
-    void callbackTrackedGroups(const TGroups::ConstPtr& msg);
-
-    void callbackSetGoal(const geometry_msgs::PoseStamped::ConstPtr& msg);
-
-    void callbackGlobalPath(const nav_msgs::Path::ConstPtr& path);
-
 protected:
-    /// Internal methods
-
-    void computeLayerCostmap(const double& min_i,
-        const double& min_j,
-        const double& max_i,
-        const double& max_j);
 
     void updateRobotPose();
-
-    point_t nextMilestone();
-
-    std::vector<double> selectWeights(std::string behavior_name);
+    behavior_utils::Person getPersonInFront();
 
 private:
     void reconfigureCB(LayerConfig& config, uint32_t level);
     dynamic_reconfigure::Server<LayerConfig>* dsrv_;
 
     ros::Subscriber sub_persons_;
-    ros::Subscriber sub_groups_;
-    ros::Subscriber sub_goal_;
-    ros::Subscriber sub_global_path_;
 
-    // local data stores
-    std::map<int, Person> persons_map_;
-    std::vector<Person> persons_;
-    std::vector<PairWiseRelation> relations_;
-    boost::shared_ptr<nav_msgs::Path> global_path_;
+    ros::Publisher pub_next_goal_;
 
-    // params
-    std::string behavior_name_;
-    std::vector<double> polite_;
-    std::vector<double> rude_;
-    std::vector<double> sociable_;
-    Tpoint goal_;
-
-    // local cached costmap
-    std::map<std::pair<int, int>, double> social_cost_map_;
-    double min_social_cost_, max_social_cost_;
-
-    // module for social navigation cost
-    std::unique_ptr<SocialComplianceCost> cost_function_;
+    std::vector<behavior_utils::Person> persons_;
+    behavior_utils::Person robot_position_;
 
     std::string costmap_frame_;
     std::string robot_base_frame_;
 
-    // current robot pose
-    Person robot_position_;
-
-    // dynamic reconfigure params
-    std::shared_ptr<CFParams> cfparams_;
-    double update_range_, min_range_;
-    int prediction_horizon_;
-    bool dynamic_scene_;
 };
+
+
 
 } // end namespace
 

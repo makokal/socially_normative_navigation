@@ -8,6 +8,7 @@ set(PACKAGE_DEPENDENCIES
     nav_msgs
     roscpp
     rospy
+    tf
 )
 
 find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})

@@ -1,0 +1,38 @@
+# do not use rolling window version of costmap, as global costmap is static
+rolling_window: false
+static_map: false
+
+map_type: map
+width: 30.0
+height: 30.0
+publish_frequency: 8.0
+update_frequency: 8.0
+track_unknown_space: false
+resolution: 0.2
+global_frame: odom
+origin_x: 0.0
+origin_y: 0.0
+
+
+plugins:
+    - {name: obstacles, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflater, type: "costmap_2d::InflationLayer"}
+    - {name: social_compliance, type: "social_compliance_layer::SocialComplianceLayer"}
+
+
+obstacles:
+    observation_sources: /pedsim/people_cloud_global /pedsim/obstacle_cloud_global
+    /pedsim/obstacle_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 40, raytrace_range: 40, map_type: costmap}
+    /pedsim/people_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 40, raytrace_range: 40, map_type: costmap}
+
+inflater:
+    observation_sources: /pedsim/people_cloud_global /pedsim/obstacle_cloud_global
+    /pedsim/obstacle_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 40, raytrace_range: 40, map_type: costmap}
+    /pedsim/people_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 40, raytrace_range: 40, map_type: costmap}
+
+social_compliance:
+    goal_topic: /move_base_simple/goal
+    people_topic: /spencer/perception/tracked_persons #_filtered_by_distance
+    groups_topic: /spencer/perception/tracked_groups
+
+

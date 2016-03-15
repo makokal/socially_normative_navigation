@@ -1,0 +1,34 @@
+rolling_window: false
+static_map: false
+
+map_type: map
+width: 39.0
+height: 39.0
+publish_frequency: 8.0
+update_frequency: 8.0
+track_unknown_space: false
+resolution: 0.3
+global_frame: odom
+origin_x: 0.0
+origin_y: 0.0
+
+
+plugins:
+    - {name: obstacles, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflater, type: "costmap_2d::InflationLayer"}
+    - {name: flow_behavior_layer, type: "flow_behavior_layer::FlowBehaviorLayer"}
+
+
+obstacles:
+    observation_sources: /pedsim/people_cloud_global /pedsim/obstacle_cloud_global
+    /pedsim/obstacle_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 50.5, raytrace_range: 50.5, map_type: costmap}
+    /pedsim/people_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 50.5, raytrace_range: 50.5, map_type: costmap}
+
+inflater:
+    observation_sources: /pedsim/people_cloud_global /pedsim/obstacle_cloud_global
+    /pedsim/obstacle_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 50.5, raytrace_range: 50.5, map_type: costmap}
+    /pedsim/people_cloud_global: {data_type: PointCloud, sensor_frame: odom, marking: true, clearing: true, obstacle_range: 50.5, raytrace_range: 50.5, map_type: costmap}
+
+flow_behavior_layer:
+    goal_topic: /move_base_simple/goal
+    people_topic: /spencer/perception/tracked_persons

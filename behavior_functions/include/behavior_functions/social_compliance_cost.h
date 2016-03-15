@@ -84,7 +84,8 @@ public:
         std::shared_ptr<CFParams> params,
         const Person& robot,
         const double& t=1.0,
-        const int& horizon=4);
+        const int& horizon=4,
+        const bool& dynamic_scene=true);
 
     double cost(const Trajectory& traj,
         const VPersons& people,
@@ -92,7 +93,8 @@ public:
         const Tpoint& goal,
         std::shared_ptr<CFParams> params,
         const Person& robot,
-        const int& horizon=4);
+        const int& horizon=4,
+        const bool& dynamic_scene=true);
 
 protected:
 
@@ -146,7 +148,8 @@ double SocialComplianceCost::cost(const Tpoint& location,
         std::shared_ptr<CFParams> params,
         const Person& robot,
         const double& t,
-        const int& horizon)
+        const int& horizon,
+        const bool& dynamic_scene)
 {
     // load parameters
     cutoff_relation_ = params->thresh_link;
@@ -160,16 +163,19 @@ double SocialComplianceCost::cost(const Tpoint& location,
         return 0.0;
     }
 
+    double full_cost = 0.0;
     std::vector<double> features(3, 0.0);
-    features[0] = relationDisturbance(location, relations, t);
-    features[1] = socialDisturbance(location, people, t);
-    features[2] = 0.0;
 
-    double init_cost = behavior_utils::vdot(features, weights_);
-    double full_cost = init_cost;
-
-    if (horizon < 1)
+    // In case of static scenes or when no prediction is desired, do not skip
+    // the current time step
+    if (!dynamic_scene || horizon < 1) {
+        features[0] = relationDisturbance(location, relations, t);
+        features[1] = socialDisturbance(location, people, t);
+        features[2] = 0.0;
+        full_cost = behavior_utils::vdot(features, weights_);
         return full_cost;
+    }
+
 
     for (int i = 1; i < horizon; i++) {
         // make people predictions for the horizon
@@ -196,11 +202,12 @@ double SocialComplianceCost::cost(const Trajectory& traj,
     const Tpoint& goal,
     std::shared_ptr<CFParams> params,
     const Person& robot,
-    const int& horizon)
+    const int& horizon,
+    const bool& dynamic_scene)
 {
     double c = 0.0;
     for (unsigned int t = 0; t < traj.size(); t++)
-        c += cost(traj[t], people, relations, goal, params, robot, float(t), horizon);
+        c += cost(traj[t], people, relations, goal, params, robot, float(t), horizon, dynamic_scene);
 
     c += (goalDeviationAngle(traj, goal) * weights_[2]);
 
@@ -237,6 +244,8 @@ double SocialComplianceCost::relationDisturbance(const Tpoint& location, const V
 
         auto result = distance2Segment(location, line_start, line_end);
         if (result.second) {
+            // feature += 4.0 * gaussianPdf(result.first, 0.0, 0.36) * std::pow(gamma_, float(t));
+
             if (result.first < cutoff_relation_) {
                 feature += (cutoff_relation_ - result.first) * std::pow(gamma_, float(t));
                 ;
@@ -255,11 +264,37 @@ double SocialComplianceCost::socialDisturbance(const Tpoint& location, const VPe
 
     Person closest_person = findClosestPerson(people, location);
     double cdist = edist(closest_person, location);
+    double speed = std::hypot(closest_person.vx, closest_person.vy);
+
+    double discount = std::pow(gamma_, float(t));
+
+    // double sigma = 1.0;
+    // if (behavior_name_ == "sociable") {
+    //     sigma = 0.1;
+    //     double social_boundary = socio_zone_ + 0.8;
+    //     if (cdist > socio_zone_ && cdist < social_boundary)
+    //         feature += (socio_zone_ - cdist) * discount;
+    // }
+    // else {
+
+    //     double aniso_boundary = speed * 3.0;
+    //     if (region_type_ == "anisotropic") {
+    //         double ad = anisotropicDistance(closest_person, location, aniso_boundary);
+    //         if (cdist < ad)
+    //             feature += gaussianPdf(cdist, 0.0, sigma) * discount;
+    //     }
+    //     else {
+    //         feature += gaussianPdf(cdist * speed, 0.0, sigma) * discount;
+    //     }
+    // }
+
+    // return feature;
+
+
 
     double boundary = cutoff_personal_;
 
     // check if person is static or moving
-    double speed = std::hypot(closest_person.vx, closest_person.vy);
     // if (speed > thresh_static_)
     //     region_type_ = "anisotropic";
     // else
@@ -275,20 +310,20 @@ double SocialComplianceCost::socialDisturbance(const Tpoint& location, const VPe
         if (region_type_ == "anisotropic") {
             double ad = anisotropicDistance(closest_person, location, speed * 3.0);
             if ((cdist < ad) && (cdist < socio_zone_) && (cdist < boundary))
-                feature += (boundary - cdist) * std::pow(gamma_, float(t));
+                feature += (boundary - cdist) * discount;
             ;
 
             if ((cdist < ad) && (cdist > socio_zone_) && (cdist < boundary))
-                feature += (cdist - boundary) * std::pow(gamma_, float(t));
+                feature += (cdist - boundary) * discount;
             ;
         }
         else if (region_type_ == "uniform") {
             if ((cdist < socio_zone_) && (cdist < boundary))
-                feature += (boundary - cdist) * std::pow(gamma_, float(t));
+                feature += (boundary - cdist) * discount;
             ;
 
             if ((cdist > socio_zone_) && (cdist < boundary))
-                feature += (cdist - boundary) * std::pow(gamma_, float(t));
+                feature += (cdist - boundary) * discount;
             ;
         }
     }
@@ -296,12 +331,12 @@ double SocialComplianceCost::socialDisturbance(const Tpoint& location, const VPe
         if (region_type_ == "anisotropic") {
             double ad = anisotropicDistance(closest_person, location, speed * 3.0);
             if ((cdist < ad) && (cdist < boundary))
-                feature += (boundary - cdist) * std::pow(gamma_, float(t));
+                feature += (boundary - cdist) * discount;
             ;
         }
         else if (region_type_ == "uniform") {
             if (cdist < boundary)
-                feature += (boundary - cdist) * std::pow(gamma_, float(t));
+                feature += (boundary - cdist) * discount;
             ;
         }
     }

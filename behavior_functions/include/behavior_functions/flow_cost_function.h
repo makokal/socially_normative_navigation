@@ -106,9 +106,10 @@ double FlowCostFunction::cost(const Tpoint& location,
     zone_radius_ = radius;
 
     std::vector<double> features(3, 0.0);
-    features[0] = density(location, people, t);
+    // NOTE - demo hacks
+    // features[0] = density(location, people, t);
     features[1] = relativeHeading(location, people, goal, t);
-    features[2] = goalDistance(location, goal, t);
+    // features[2] = goalDistance(location, goal, t);
 
     return vdot(features, weights_);
 }
@@ -136,10 +137,14 @@ double FlowCostFunction::density(const Tpoint& location, const VPersons& people,
     if (people.size() < 1)
         return 0.0;
 
-    int density = 0;
+    double density = 0.0;
     for (const Person& p : people) {
-        if (edist(location, p) <= zone_radius_)
-            density++;
+        double d = edist(location, p);
+        density += gaussianPdf(d, 0.0, 1.0);
+        // if (d < zone_radius_) {
+        //     density += gaussianPdf(d, 0.0, 1.0);
+        //     // density += 1.0;
+        // }
     }
 
     return density * std::pow(gamma_, float(t));
@@ -153,18 +158,27 @@ double FlowCostFunction::relativeHeading(const Tpoint& location,
     if (people.size() < 1)
         return 0.0;
 
-    double density = 0;
     double goal_pull = 0.0;
+    double density = 0.0;
     for (const Person& p : people) {
-        if (edist(location, p) <= zone_radius_) {
-            density++;
-            // goal_pull += goalOrientation(p, goal);
-            // goal_pull += sigmoid(goalOrientation(p, goal));
-            goal_pull += tanh(goalOrientation(p, goal));
+        double d = edist(location, p);
+        // goal_pull += gaussianPdf(d, 0.0, 5.0) * tanh(goalOrientation(p, goal));
+        if (d < zone_radius_) {
+            // - heading to goal, + away from goal
+            // double x = tanh(goalOrientation(p, goal));
+
+            // if (x > 0.0)
+            //     goal_pull += gaussianPdf(d, 0.0, 1.0) * x;
+            // else
+            //     goal_pull += x;
+
+
+            goal_pull += gaussianPdf(d, 0.0, 1.0) * tanh(goalOrientation(p, goal));
+            density += gaussianPdf(d, 0.0, 1.0) * 1.0;
         }
     }
 
-    if (density > 0)
+    if (density > 0.0)
         goal_pull /= density;
 
     return goal_pull * std::pow(gamma_, float(t));

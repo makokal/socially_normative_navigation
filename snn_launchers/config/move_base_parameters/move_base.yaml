@@ -1,0 +1,18 @@
+#global planning frequency, when 0 only plans on new goal once
+planner_frequency: 2.0
+
+# local planner frequency, cmd_vel is published at this rate
+controller_frequency: 12.0
+
+# time to wait for global planner before starting recovery
+planner_patience: 2.0
+
+# time to wait for local planner before starting recovery
+controller_patience: 2.0
+
+# recovery behaviors
+recovery_behavior_enabled: true
+recovery_behaviors:
+    - {name: clear_sides_of_robot, type: "clear_costmap_on_robot_sides_recovery/clearCostmapOnRobotSidesRecovery"}
+    - {name: conservative_reset, type: "clear_costmap_recovery/ClearCostmapRecovery"}
+    - {name: unstuck, type: "unstuck_recovery/UnstuckRecovery"}

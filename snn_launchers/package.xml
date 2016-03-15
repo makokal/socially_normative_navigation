@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <name>snn_launchers</name>
+  <version>0.1.0</version>
+  <description>
+    The snn_launchers package provides mechanisms for running socially normative navigation (snn) routines
+  </description>
+
+  <maintainer email="okal@cs.uni-freiburg.de">Billy Okal</maintainer>
+  <license>BSD</license>
+  <author email="okal@cs.uni-freiburg.de">Billy Okal</author>
+  <url type="website">http://wiki.ros.org/snn_launchers</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

@@ -1,0 +1,37 @@
+<launch>
+  <!-- Robot control group -->
+  <arg name="pose_initial_x" default="5.0"/>
+  <arg name="pose_initial_y" default="2.0"/>
+  <arg name="pose_initial_theta" default="0.7"/>
+  <arg name="max_linear_velocity" default="1.6"/>
+  <arg name="max_angular_velocity" default="1.0"/>
+  <arg name="publish_default_laser_collision_status" default="true"/>
+
+  <group ns="/spencer/control">
+    <include file="$(find spencer_description)/launch/publish.launch"/>
+    <include file="$(find spencer_description)/launch/joints.launch"/>
+
+    <!-- SPENCER simulated driving controller -->
+    <include file="$(find spencer_control)/launch/driving_controller.launch" ns="/spencer/control" clear_params="true">
+      <arg name="simulated" value="true"/>
+      <arg name="rear_rgbd_coll_check" value="false"/>
+      <arg name="front_rgbd_coll_check" value="false"/>
+    </include>
+
+    <!-- Override parameters -->
+    <group ns="driving_controller">
+      <param name="pose_initial_x" value="$(arg pose_initial_x)"/>
+      <param name="pose_initial_y" value="$(arg pose_initial_y)"/>
+      <param name="pose_initial_theta" value="$(arg pose_initial_x)"/>
+      <param name="max_linear_velocity" value="$(arg max_linear_velocity)"/>
+      <param name="max_angular_velocity" value="$(arg max_angular_velocity)"/>
+    </group>
+
+    <!-- Collision status for front and rear laser -->
+    <group if="$(arg publish_default_laser_collision_status)">
+      <node pkg="rostopic" type="rostopic" name="rostopic_laser_front" args="pub /spencer/control/collision/laser_front spencer_control_msgs/CollisionStatus '{collisionError: false, collisionWarning: false}' -r 35" />
+      <node pkg="rostopic" type="rostopic" name="rostopic_laser_rear" args="pub /spencer/control/collision/laser_rear spencer_control_msgs/CollisionStatus '{collisionError: false, collisionWarning: false}' -r 35" />
+    </group>
+  </group>
+
+</launch>

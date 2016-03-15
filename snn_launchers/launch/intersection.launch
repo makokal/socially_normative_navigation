@@ -1,0 +1,26 @@
+<launch>
+    <arg name="scene" default="intersection"/>
+
+    <!-- visualization  -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find snn_launchers)/config/rviz/$(arg scene).rviz"/>
+
+    <!-- simulation module for perception and showing robot -->
+    <include file="$(find snn_launchers)/launch/run_simulator.launch">
+        <arg name="lobby" value="false"/>
+        <arg name="scene" value="$(arg scene)"/>
+    </include>
+
+    <!-- Robot controllers -->
+    <include file="$(find snn_launchers)/launch/robot_control.launch">
+        <arg name="pose_initial_x" value="4.0"/>
+        <arg name="pose_initial_y" value="20.0"/>
+        <arg name="pose_initial_theta" value="0.0"/>
+    </include>
+
+    <!-- planning module with move base -->
+    <include file="$(find snn_launchers)/launch/run_planning.launch">
+        <arg name="scene" value="$(arg scene)"/>
+        <arg name="reset_params" value="false"/>
+    </include>
+
+</launch>

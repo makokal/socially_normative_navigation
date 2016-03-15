@@ -1,0 +1,34 @@
+<launch>
+
+    <arg name="lobby" default="true"/>
+    <arg name="scene" default="lobby"/>
+
+    <!-- simulator parameters -->
+    <param name="/pedsim/scene_file" value="$(find snn_launchers)/scenes/$(arg scene).xml" type="string"/>
+    <param name="/pedsim_simulator/max_robot_speed" value="2.0" type="double"/>
+    <param name="/pedsim_simulator/robot_wait_time" value="30000" type="double"/>
+    <param name="/pedsim_simulator/agents_alpha" value="0.5" type="double"/>
+    <param name="/pedsim_simulator/show_robot" value="true"/>
+    <param name="/pedsim_simulator/teleop_flag" value="0" type="double"/>
+    <param name="/use_sim_time" value="false"/>
+    <param name="/pedsim_simulator/teleop_flag" value="0" type="double"/>
+
+
+    <!-- simulator node -->
+    <node name="pedsim_simulator" pkg="pedsim_simulator" type="simulator" output="screen"/>
+
+    <group if="$(arg lobby)">
+        <!-- Publishing Agents Tracks and Groups -->
+        <node name="mock_tracks_lobby" pkg="snn_launchers" type="mock_tracks_static_lobby.py" respawn="false" output="screen" cwd="node"/>
+
+        <node name="mock_groups_lobby" pkg="snn_launchers" type="mock_groups_lobby.py" respawn="false" output="screen" cwd="node"/>
+    </group>
+
+    <!-- Pedsim simulator sensors -->
+    <node name="pedsim_point_clouds" pkg="pedsim_point_clouds" type="pedsim_point_clouds" output="screen"/>
+
+    <group unless="$(arg lobby)">
+        <node name="pedsim_to_spencer" pkg="pedsim_to_spencer" type="pedsim_to_spencer" respawn="false" output="log" />
+    </group>
+
+</launch>

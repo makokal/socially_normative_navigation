@@ -37,6 +37,9 @@
 #include <behavior_utils/entities.h>
 
 
+const double ROOT_2PI = 2.50662827463;
+
+
 namespace behavior_utils
 {
 
@@ -55,8 +58,6 @@ inline double mapRange(const double& value,
     const double& mina, const double& maxa,
     const double& mint, const double& maxt)
 {
-    // assert(value >= mina);
-    // assert(value <= maxa);
     assert(mint < maxt);
 
     double denom = maxa - mina;
@@ -134,6 +135,18 @@ inline double costDecay(const double& value, const double horizon, const double&
     double h2 = horizon * 2.0;
     return ((h2 - dt) / h2) * value;
     // return value * (1.0 / dt);
+}
+
+inline double gaussianPdf(const double& x, const double& mu = 0.0, const double& sigma = 1.0)
+{
+    const double a = 1.0 / (sigma * ROOT_2PI);
+    return a * exp(-((x - mu) * (x - mu)) / (2.0 * sigma * sigma));
+}
+
+inline double laplacePdf(const double& x, const double& mu = 0.0, const double& b = 1.0)
+{
+    const double a = 1.0 / (2.0 * b);
+    return a * exp(-(fabs(x - mu)) / b);
 }
 
 

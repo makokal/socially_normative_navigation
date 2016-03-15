@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This scenario file was created by SGDiCoP on 2015-08-13T20:37:56-->
+<scenario>
+    <!--Obstacles-->
+    <obstacle x1="0" y1="0" x2="39" y2="0"/>
+    <obstacle x1="0" y1="0" x2="0" y2="39"/>
+    <obstacle x1="0" y1="39" x2="39" y2="39"/>
+    <obstacle x1="39" y1="0" x2="39" y2="39"/>
+    <obstacle x1="14" y1="0" x2="14" y2="12"/>
+    <obstacle x1="25" y1="0" x2="25" y2="12"/>
+    <obstacle x1="0" y1="14" x2="12" y2="14"/>
+    <obstacle x1="12" y1="14" x2="14" y2="12"/>
+    <obstacle x1="25" y1="12" x2="27" y2="14"/>
+    <obstacle x1="27" y1="14" x2="39" y2="14"/>
+    <obstacle x1="0" y1="25" x2="12" y2="25"/>
+    <obstacle x1="12" y1="25" x2="14" y2="27"/>
+    <obstacle x1="14" y1="27" x2="14" y2="39"/>
+    <obstacle x1="25" y1="39" x2="25" y2="27"/>
+    <obstacle x1="25" y1="27" x2="27" y2="25"/>
+    <obstacle x1="27" y1="25" x2="39" y2="25"/>
+    <!--Waypoints (incl. WaitingQueues)-->
+    <waypoint id="a" x="20" y="2" r="5"/>
+    <waypoint id="b" x="1" y="20" r="5"/>
+    <waypoint id="c" x="19" y="36" r="5"/>
+    <waypoint id="center" x="20" y="20" r="8"/>
+    <waypoint id="d" x="38" y="20" r="5"/>
+    <!--Attractions-->
+    <!--Agents-->
+    <!--AgentClusters-->
+    <agent x="5" y="21" n="1" dx="0" dy="0" type="2">
+        <addwaypoint id="d"/>
+        <addwaypoint id="b"/>
+    </agent>
+    <agent x="6" y="19" n="15" dx="5" dy="5" type="0">
+        <addwaypoint id="center"/>
+        <addwaypoint id="a"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="c"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="b"/>
+    </agent>
+    <agent x="11" y="19" n="15" dx="5" dy="5" type="1">
+        <addwaypoint id="center"/>
+        <addwaypoint id="d"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="b"/>
+    </agent>
+    <agent x="20" y="6" n="15" dx="5" dy="5" type="0">
+        <addwaypoint id="center"/>
+        <addwaypoint id="c"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="a"/>
+    </agent>
+    <agent x="19" y="9" n="15" dx="5" dy="5" type="1">
+        <addwaypoint id="center"/>
+        <addwaypoint id="d"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="b"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="a"/>
+    </agent>
+    <agent x="26" y="20" n="15" dx="5" dy="5" type="0">
+        <addwaypoint id="center"/>
+        <addwaypoint id="a"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="c"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="d"/>
+    </agent>
+    <agent x="33" y="20" n="15" dx="5" dy="5" type="1">
+        <addwaypoint id="center"/>
+        <addwaypoint id="b"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="d"/>
+    </agent>
+    <agent x="19" y="30" n="15" dx="5" dy="5" type="0">
+        <addwaypoint id="center"/>
+        <addwaypoint id="a"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="c"/>
+    </agent>
+    <agent x="20" y="34" n="15" dx="5" dy="5" type="1">
+        <addwaypoint id="center"/>
+        <addwaypoint id="b"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="d"/>
+        <addwaypoint id="center"/>
+        <addwaypoint id="c"/>
+    </agent>
+</scenario>

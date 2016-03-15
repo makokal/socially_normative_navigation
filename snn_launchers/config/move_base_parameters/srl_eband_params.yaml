@@ -1,0 +1,38 @@
+# Robot configuration parameters
+max_acceleration: 0.1
+max_translational_acceleration: 0.5
+max_rotational_acceleration: 0.5
+
+max_vel_lin: 1.1
+min_vel_lin: 0.05
+max_vel_th: 1.57
+min_vel_th: 0.0
+max_in_place_vel_th: 0.2
+min_in_place_vel_th: 0.05
+in_place_trans_vel: 0.0
+
+# Goal Tolerance Parameters
+yaw_goal_tolerance: 0.2
+xy_goal_tolerance: 0.35
+differential_drive: true
+# Select a linear velocity (based on the current bubble radius), linear_velocity = bubble_velocity_multiplier_ * bubble_radius;
+# bubble_velocity_multiplier: 10.0
+# Select an angular velocity based on the error in orientation of the next two bubbles, k_p_*bubble_diff.angula.z
+k_prop: 1.5
+k_damp: 3
+# k_int : 0.4, currently not used by the local planner
+# k_diff : 1, currently not used by the local planner
+
+# gain for the internal forces in the elastic band construction
+# eband_internal_force_gain: 10.0
+# gain for the external forces in the elastic band construction
+# eband_external_force_gain: 10.0
+# num_iterations_eband_optimization: 3
+
+Ts: 0.1
+Kv_one: 0.80
+Kv_two: 0.80
+B: 0.5
+rot_stopping_turn_on_the_spot: 0.25
+smoothed_eband: False
+lookahed: 2

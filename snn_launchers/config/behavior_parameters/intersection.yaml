@@ -1,0 +1,7 @@
+
+# TODO - fix the naming and add slipstream layer, for now test with flow
+
+flow_behavior_layer:
+    behavior_name: 'merge'
+    behavior_params_merge: [0.0, 2.750005, 0.02]
+    behavior_params_nomerge: [0.0, 0.0, 0.02]

@@ -102,6 +102,7 @@ void SocialComplianceLayer::onInitialize()
     min_social_cost_ = 0.0;
     max_social_cost_ = 0.0;
     prediction_horizon_ = 2;
+    dynamic_scene_ = true;
 
     cfparams_ = std::make_shared<CFParams>();
     cost_function_.reset(new SocialComplianceCost(0.99, behavior_name_, cfparams_));
@@ -137,9 +138,10 @@ void SocialComplianceLayer::computeLayerCostmap(const double& min_i,
             double cell_cost = 0.0;
 
             if (min_range_ < dist_to_robot && dist_to_robot < update_range_) {
+            // if (dist_to_robot < update_range_) {
                 Tpoint p = { wx, wy, 0.0, 0.0 };
                 // location, people, relations, goal, params, discount, horizon
-                cell_cost = cost_function_->cost(p, persons_, relations_, goal_, cfparams_, robot_position_, 1.0, prediction_horizon_);
+                cell_cost = cost_function_->cost(p, persons_, relations_, goal_, cfparams_, robot_position_, 1.0, prediction_horizon_, dynamic_scene_);
             }
 
             // store the cost of the cell with its coordinates
@@ -278,9 +280,9 @@ void SocialComplianceLayer::reconfigureCB(LayerConfig& config, uint32_t level)
     cfparams_->region_type = config.region_type;
     cfparams_->weights = selectWeights(config.behavior_name);
     cfparams_->thresh_static = config.thresh_static;
-    // cfparams_->front_horizon = config.front_horizon;
 
     prediction_horizon_ = config.prediction_horizon;
+    dynamic_scene_ = config.dynamic_scene;
 
     // layer update range limit (how far drom the robot the layer should be updated)
     update_range_ = config.update_range;

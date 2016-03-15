@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <name>socially_normative_navigation</name>
+  <version>0.1.0</version>
+  <description>
+    The socially_normative_navigation stack containing different packages for realizing socially normative navigation behavior among mobile service robots operating in human populated areas.
+  </description>
+
+  <maintainer email="okal@cs.uni-freiburg.de">Billy Okal</maintainer>
+  <author email="okal@cs.uni-freiburg.de">Billy Okal</author>
+
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/socially_normative_navigation</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>behavior_utils</run_depend>
+  <run_depend>behavior_functions</run_depend>
+  <run_depend>social_compliance_layer</run_depend>
+  <run_depend>flow_behavior_layer</run_depend>
+  <run_depend>overtaking_layer</run_depend>
+  <run_depend>snn_launchers</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+
+</package>
