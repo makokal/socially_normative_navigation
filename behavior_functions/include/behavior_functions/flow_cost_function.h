@@ -107,9 +107,9 @@ double FlowCostFunction::cost(const Tpoint& location,
 
     std::vector<double> features(3, 0.0);
     // NOTE - demo hacks
-    // features[0] = density(location, people, t);
+    features[0] = density(location, people, t);
     features[1] = relativeHeading(location, people, goal, t);
-    // features[2] = goalDistance(location, goal, t);
+    features[2] = goalDistance(location, goal, t);
 
     return vdot(features, weights_);
 }
